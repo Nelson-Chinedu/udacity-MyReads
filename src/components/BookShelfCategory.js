@@ -1,20 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import BookShelf from './BookShelf';
-
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import BookShelf from "./BookShelf";
 
 class BookShelfCategory extends Component {
-  
   static propTypes = {
-    currentlyReading: PropTypes.array.isRequired,
-    wantToRead: PropTypes.array.isRequired,
-    read: PropTypes.array.isRequired,
-    showSearchPage: PropTypes.bool
-  }
+    onChangeShelf: PropTypes.func.isRequired,
+    books: PropTypes.array.isRequired,
+  };
 
-  render(){
-    const { currentlyReading, wantToRead, read, onChangeShelf } = this.props;
+  render() {
+    const { books, onChangeShelf } = this.props;
     return (
       <div className="list-books">
         <div className="list-books-title">
@@ -22,19 +18,19 @@ class BookShelfCategory extends Component {
         </div>
         <div className="list-books-content">
           <div>
-            <BookShelf 
+            <BookShelf
               bookShelfTitle="Currently Reading"
-              bookList={currentlyReading}
+              books={books.filter((book) => book.shelf === "currentlyReading")}
               onChangeShelf={onChangeShelf}
             />
-            <BookShelf 
+            <BookShelf
               bookShelfTitle="Want To Read"
-              bookList={wantToRead}
+              books={books.filter((book) => book.shelf === "wantToRead")}
               onChangeShelf={onChangeShelf}
             />
-            <BookShelf 
+            <BookShelf
               bookShelfTitle="Read"
-              bookList={read} 
+              books={books.filter((book) => book.shelf === "read")}
               onChangeShelf={onChangeShelf}
             />
           </div>
@@ -43,9 +39,8 @@ class BookShelfCategory extends Component {
           <Link to="/search">Add a book</Link>
         </div>
       </div>
-    )
+    );
   }
 }
-
 
 export default BookShelfCategory;

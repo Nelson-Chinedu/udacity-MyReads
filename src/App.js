@@ -1,84 +1,71 @@
-import React from 'react';
-import * as BooksAPI from './BooksAPI';
-import { Route } from 'react-router-dom';
+import React from "react";
+import * as BooksAPI from "./BooksAPI";
+import { Route } from "react-router-dom";
 
-import BookshelfCategory from './components/BookShelfCategory';
-import SearchBook from './components/SearchBook';
-import './App.css'
-
+import BookshelfCategory from "./components/BookShelfCategory";
+import SearchBook from "./components/SearchBook";
+import "./App.css";
 
 class BooksApp extends React.Component {
   state = {
     books: [],
-    loading: true
-  }
+    loading: true,
+  };
 
   componentDidMount() {
-    BooksAPI.getAll()
-      .then((books) => {
-        this.setState(() => ({
-          books,
-          loading: false,
-        }))
-      })
+    BooksAPI.getAll().then((books) => {
+      this.setState(() => ({
+        books,
+        loading: false,
+      }));
+    });
   }
 
-
   onChangeShelf = (book, shelf) => {
-    BooksAPI.update(book, shelf)
-      .then(
-        this.setState((state) => ({
-          books: state.books.map(b => {
-              if (b.title === book.title) {
-                  b.shelf = shelf;
-                  return b
-              } else {
-                  return b
-              }
-          }),
-          loading: false
-      }))
-      )
+    BooksAPI.update(book, shelf).then(() => {
+      BooksAPI.getAll().then((books) => {
+        this.setState(() => ({
+          books,
+        }));
+      });
+    });
   };
-  render() {
-    const { books, loading } = this.state;
 
-    const currentlyReading = books.filter((book) => book.shelf === 'currentlyReading');
-    const wantToRead = books.filter((book) => book.shelf === 'wantToRead');
-    const read = books.filter((book) => book.shelf === 'read');
-    
+  render() {
     return (
       <div className="app">
-        <Route exact path="/" render={() => (
-          <div>
-          { loading ? (
-            <div className="loading">
-              <img src="/loader.gif" alt="loader" />
-              <p>Loading...</p>
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <div>
+              {this.state.loading ? (
+                <div className="loading">
+                  <img src="/loader.gif" alt="loader" />
+                  <p>Loading...</p>
+                </div>
+              ) : (
+                <BookshelfCategory
+                  onChangeShelf={this.onChangeShelf}
+                  books={this.state.books}
+                />
+              )}
             </div>
-          ) : (
-            <BookshelfCategory 
-              currentlyReading={currentlyReading}
-              wantToRead={wantToRead}
-              read={read}
+          )}
+        />
+        <Route
+          path="/search"
+          render={({ history }) => (
+            <SearchBook
+              history={history}
               onChangeShelf={this.onChangeShelf}
-              showSearchPage={this.state.showSearchPage}
+              books={this.state.books}
             />
           )}
-          </div>
-          )} 
-        />
-        <Route path="/search" render={({history}) => (
-          <SearchBook
-            history={history} 
-            onChangeShelf={this.onChangeShelf}
-            books={currentlyReading.concat(wantToRead, read)}
-          /> 
-        )} 
         />
       </div>
-    )
+    );
   }
 }
 
-export default BooksApp
+export default BooksApp;
